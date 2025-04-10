@@ -15,25 +15,37 @@ void initMicroCVMCPU(MicroCVMCPU* cpu){
     cpu->flags = 0;
 }
 
+int getOpcodeArgumentCount(OpcodeType type){
+    switch(type) {
+        case inc: return 1;
+        case mov: return 2;
+        case add: return 2;
+        case sub: return 2;
+        default: return 0;
+    }
+}
+
 Opcode createOpcode(MicroCVMCPU* cpu){
     Opcode currentInstruction = {0};
     uint8_t opcodeByte = cpu->memory[cpu->pc];
 
     currentInstruction.type = (OpcodeType)opcodeByte;
+    currentInstruction.argumentCount = getOpcodeArgumentCount(currentInstruction.type);
 
-    uint8_t arg1 = cpu->memory[cpu->pc + 1];
-    uint8_t arg2 = cpu->memory[cpu->pc + 2];
-
-    if (arg1 < 8) {
-        currentInstruction.arg1.reg = (Register)arg1;
-    } else {
-        currentInstruction.arg1.address = (uint16_t)arg1;
+    if (currentInstruction.argumentCount >= 1) {
+        uint8_t arg1 = cpu->memory[cpu->pc + 1];
+        if (arg1 < 8)
+            currentInstruction.arg1.reg = (Register)arg1;
+        else
+            currentInstruction.arg1.address = (uint16_t)arg1;
     }
 
-    if (arg2 < 8) {
-        currentInstruction.arg2.reg = (Register)arg2;
-    } else {
-        currentInstruction.arg2.immediate = (int32_t)arg2;
+    if (currentInstruction.argumentCount >= 2) {
+        uint8_t arg2 = cpu->memory[cpu->pc + 2];
+        if (arg2 < 8)
+            currentInstruction.arg2.reg = (Register)arg2;
+        else
+            currentInstruction.arg2.immediate = (int32_t)arg2;
     }
 
     return currentInstruction;
@@ -49,6 +61,13 @@ void executeInstruction(MicroCVMCPU* cpu){
 
         case mov:
             cpu->registers[opcode.arg1.reg] = (uint16_t)opcode.arg2.immediate;
+            break;
+
+        case add:
+            cpu->registers[opcode.arg1.reg] += (uint16_t)opcode.arg2.immediate;
+            break;
+        case sub:
+            cpu->registers[opcode.arg1.reg] -= (uint16_t)opcode.arg2.immediate;
             break;
     }
 }

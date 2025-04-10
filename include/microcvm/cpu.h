@@ -38,6 +38,7 @@ typedef enum {
 
 typedef struct {
     OpcodeType type;
+    int argumentCount;
 
     union {
         Register reg;
@@ -53,6 +54,7 @@ typedef struct {
 } Opcode;
 
 void initMicroCVMCPU(MicroCVMCPU* cpu);
+int getOpcodeArgumentCount(OpcodeType type);
 Opcode createOpcode(MicroCVMCPU* cpu);
 void executeInstruction(MicroCVMCPU* cpu);
 int loadBinary(MicroCVMCPU* cpu, const char* filename);
