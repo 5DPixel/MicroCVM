@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define MEMORY_SIZE 32768 //32KB of memory
+#define MEMORY_SIZE 32768 //32KB memory
 
 typedef struct {
     uint8_t memory[MEMORY_SIZE];
@@ -21,7 +21,9 @@ typedef enum {
     jmp = 0x05,
     hlt = 0xFF,
     mov = 0x06,
-    inc = 0x07
+    inc = 0x07,
+    _div = 0x08,
+    mul = 0x09
 } OpcodeType;
 
 typedef enum {
@@ -57,3 +59,4 @@ int getOpcodeArgumentCount(OpcodeType type);
 Opcode createOpcode(MicroCVMCPU* cpu);
 void executeInstruction(MicroCVMCPU* cpu);
 int loadBinary(MicroCVMCPU* cpu, const char* filename);
+int storeOpcode(MicroCVMCPU* cpu, Opcode opcode);

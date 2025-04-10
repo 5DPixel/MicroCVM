@@ -21,6 +21,8 @@ int getOpcodeArgumentCount(OpcodeType type){
         case mov: return 2;
         case add: return 2;
         case sub: return 2;
+        case _div: return 2;
+        case mul: return 2;
         default: return 0;
     }
 }
@@ -69,6 +71,11 @@ void executeInstruction(MicroCVMCPU* cpu){
         case sub:
             cpu->registers[opcode.arg1.reg] -= (uint16_t)opcode.arg2.immediate;
             break;
+        case _div:
+            cpu->registers[opcode.arg1.reg] /= (uint16_t)opcode.arg2.immediate;
+            break;
+        case mul:
+            cpu->registers[opcode.arg1.reg] *= (uint16_t)opcode.arg2.immediate;
     }
 }
 
@@ -90,5 +97,32 @@ int loadBinary(MicroCVMCPU* cpu, const char* filename){
     fclose(file);
     
     printf("Loaded %u bytes into memory.\n", bytesRead);
+    return 0;
+}
+
+int storeOpcode(MicroCVMCPU* cpu, Opcode opcode){
+    if (cpu->pc + opcode.argumentCount >= MEMORY_SIZE) {
+        fprintf(stderr, "not enough space in memory to store opcode.\n");
+        return -1;
+    }
+
+    cpu->memory[cpu->pc] = (uint8_t)opcode.type;
+
+    if (opcode.argumentCount >= 1) {
+        if (opcode.arg1.reg < 8) {
+            cpu->memory[cpu->pc + 1] = (uint8_t)opcode.arg1.reg;
+        } else {
+            cpu->memory[cpu->pc + 1] = (uint8_t)opcode.arg1.address;
+        }
+    }
+
+    if (opcode.argumentCount >= 2) {
+        if (opcode.arg2.reg < 8) {
+            cpu->memory[cpu->pc + 2] = (uint8_t)opcode.arg2.reg;
+        } else {
+            cpu->memory[cpu->pc + 2] = (uint8_t)opcode.arg2.immediate;
+        }
+    }
+
     return 0;
 }
