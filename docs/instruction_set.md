@@ -74,4 +74,3 @@ There are 8 general-purpose registers: `r0` through `r7`.
 
 - All instructions are **little-endian**.
 - Only register indices 0–7 are valid. Any other value may be interpreted as an address or immediate.
-- You may expand this format later to support memory addressing, jumps, stack manipulation, etc.
