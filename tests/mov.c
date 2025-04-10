@@ -5,7 +5,7 @@ int main(){
     MicroCVMCPU cpu;
     initMicroCVMCPU(&cpu);
 
-    loadBinary(&cpu, "../tests/mov.bin");
+    loadBinary(&cpu, "../../tests/bin/mov.bin");
 
     while(1){
         uint8_t opcode = cpu.memory[cpu.pc];

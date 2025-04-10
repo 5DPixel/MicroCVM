@@ -15,12 +15,61 @@ void initMicroCVMCPU(MicroCVMCPU* cpu){
     cpu->flags = 0;
 }
 
-void executeInstruction(MicroCVMCPU* cpu){
-    unsigned char opcode = cpu->memory[cpu->pc];
+Opcode createOpcode(MicroCVMCPU* cpu){
+    Opcode currentInstruction = {0};
+    uint8_t opcodeByte = cpu->memory[cpu->pc];
 
-    switch(opcode){
-        case INC:
-            cpu->registers[r0]++;
+    currentInstruction.type = (OpcodeType)opcodeByte;
+
+    uint8_t arg1 = cpu->memory[cpu->pc + 1];
+    uint8_t arg2 = cpu->memory[cpu->pc + 2];
+
+    if (arg1 < 8) {
+        currentInstruction.arg1.reg = (Register)arg1;
+    } else {
+        currentInstruction.arg1.address = (uint16_t)arg1;
+    }
+
+    if (arg2 < 8) {
+        currentInstruction.arg2.reg = (Register)arg2;
+    } else {
+        currentInstruction.arg2.immediate = (int32_t)arg2;
+    }
+
+    return currentInstruction;
+}
+
+void executeInstruction(MicroCVMCPU* cpu){
+    Opcode opcode = createOpcode(cpu);
+
+    switch(opcode.type){
+        case inc:
+            cpu->registers[opcode.arg1.reg]++;
+            break;
+
+        case mov:
+            cpu->registers[opcode.arg1.reg] = (uint16_t)opcode.arg2.immediate;
             break;
     }
+}
+
+int loadBinary(MicroCVMCPU* cpu, const char* filename){
+    FILE* file;
+
+    if(fopen_s(&file, filename, "rb") != 0){
+        fprintf(stderr, "failed to open binary file!");
+    }
+
+    uint32_t bytesRead = (uint32_t)fread(cpu->memory, 1, MEMORY_SIZE, file);
+
+    if (bytesRead > MEMORY_SIZE) {
+        fprintf(stderr, "file size exceeds memory capacity.\n");
+        fclose(file);
+        return -1;
+    }
+
+    fclose(file);
+    
+    printf("Loaded %u bytes into memory.\n", bytesRead);
+    return 0;
 }

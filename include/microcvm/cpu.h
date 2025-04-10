@@ -14,14 +14,14 @@ typedef struct {
 } MicroCVMCPU;
 
 typedef enum {
-    LOAD = 0x01,
-    STORE = 0x02,
-    ADD = 0x03,
-    SUB = 0x04,
-    JMP = 0x05,
-    HLT = 0xFF,
-    MOV = 0x06,
-    INC = 0x07
+    load = 0x01,
+    store = 0x02,
+    add = 0x03,
+    sub = 0x04,
+    jmp = 0x05,
+    hlt = 0xFF,
+    mov = 0x06,
+    inc = 0x07
 } OpcodeType;
 
 typedef enum {
@@ -36,5 +36,23 @@ typedef enum {
     r8
 } Register;
 
+typedef struct {
+    OpcodeType type;
+
+    union {
+        Register reg;
+        uint16_t address;
+    } arg1;
+
+    union {
+        Register reg;
+        int32_t immediate;
+        uint16_t address;
+    } arg2;
+
+} Opcode;
+
 void initMicroCVMCPU(MicroCVMCPU* cpu);
+Opcode createOpcode(MicroCVMCPU* cpu);
 void executeInstruction(MicroCVMCPU* cpu);
+int loadBinary(MicroCVMCPU* cpu, const char* filename);

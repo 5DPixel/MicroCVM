@@ -14,4 +14,7 @@ file(GLOB_RECURSE SOURCES "src/*.c")
 
 add_executable(microcvm ${SOURCES})
 
+enable_testing()
+add_subdirectory(tests)
+
 target_include_directories(microcvm PRIVATE include)
